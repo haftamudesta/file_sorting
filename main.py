@@ -1,4 +1,4 @@
-import os
+import os,shutil
 from pathlib import Path
 
 # PATH_DOWNLOADS="C:\Users\hafta\Downloads"
@@ -23,10 +23,9 @@ def get_file_cat(fileName):
     if fileName.startswith("_"):
         return None
 
-
     filepath=os.path.join(PATH_DOWNLOADS,fileName)
     if os.path.isdir(filepath):
-        return ".Folder"
+        return ".Folders"
     else:
         file_extension= '.' + file.split('.')[-1]#Telegram Desktop Installer.exe take .exe 
         for cat,list_keywords in CATEGORIES.items():
@@ -36,6 +35,12 @@ def get_file_cat(fileName):
     
 
 for file in os.listdir(PATH_DOWNLOADS):
-    cat=get_file_cat(file)
-    print(cat,file)
-    
+    dir_name=get_file_cat(file)
+
+    if dir_name:
+        dir_filePath=os.path.join(PATH_DOWNLOADS,dir_name)
+        if not os.path.exists(dir_filePath):
+            os.makedirs(dir_filePath)
+        old_path=PATH_DOWNLOADS / file
+        new_path=os.path.join(PATH_DOWNLOADS,dir_name,file)
+        shutil.move(old_path,new_path)
