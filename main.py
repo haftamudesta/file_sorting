@@ -43,4 +43,7 @@ for file in os.listdir(PATH_DOWNLOADS):
             os.makedirs(dir_filePath)
         old_path=PATH_DOWNLOADS / file
         new_path=os.path.join(PATH_DOWNLOADS,dir_name,file)
-        shutil.move(old_path,new_path)
+        try:
+            shutil.move(old_path,new_path)
+        except Exception as e:
+            print(F'{dir_name}/{file}-{e}')
