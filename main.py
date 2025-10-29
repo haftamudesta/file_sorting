@@ -1,4 +1,5 @@
 import os,shutil
+import time
 from pathlib import Path
 
 # PATH_DOWNLOADS="C:\Users\hafta\Downloads"
@@ -19,31 +20,55 @@ CATEGORIES = {
     '_Subtitle': ['.vtt'],
 }
 
-def get_file_cat(fileName):
-    if fileName.startswith("_"):
+def get_file_cat(file_name):  
+    if file_name.startswith("_"):
         return None
 
-    filepath=os.path.join(PATH_DOWNLOADS,fileName)
+    filepath = os.path.join(PATH_DOWNLOADS, file_name)
     if os.path.isdir(filepath):
-        return ".Folders"
+        return "_Folders"  
     else:
-        file_extension= '.' + file.split('.')[-1]#Telegram Desktop Installer.exe take .exe 
-        for cat,list_keywords in CATEGORIES.items():
-            if file_extension.lower() in list_keywords:
+        
+        if '.' in file_name:
+            file_extension = '.' + file_name.split('.')[-1].lower()  
+        else:
+            file_extension = ''  
+        
+        for cat, list_keywords in CATEGORIES.items():
+            if file_extension in list_keywords:  
                 return cat
-        return ".Others"
+        return "_Others" 
+def sort_downloads():
+    all_files = os.listdir(PATH_DOWNLOADS)
+    folders = [f for f in all_files if os.path.isdir(os.path.join(PATH_DOWNLOADS, f)) and not f.startswith("_")]
+    files = [f for f in all_files if not os.path.isdir(os.path.join(PATH_DOWNLOADS, f))]
+
+    print("*" * 40)
+    print("Scanning Downloads Folder...")
+
+    time.sleep(10)
     
+    print(f'Folders Found: {len(folders)}')  
 
-for file in os.listdir(PATH_DOWNLOADS):
-    dir_name=get_file_cat(file)
-
-    if dir_name:
-        dir_filePath=os.path.join(PATH_DOWNLOADS,dir_name)
-        if not os.path.exists(dir_filePath):
-            os.makedirs(dir_filePath)
-        old_path=PATH_DOWNLOADS / file
-        new_path=os.path.join(PATH_DOWNLOADS,dir_name,file)
-        try:
-            shutil.move(old_path,new_path)
-        except Exception as e:
-            print(F'{dir_name}/{file}-{e}')
+    if files:
+        print(f'Files Found: {len(files)}') 
+        print(f'....... Sorting .......')
+    else:
+        print(f'Files Found: 0') 
+        print(f'Nothing to sort here...')
+    for file in os.listdir(PATH_DOWNLOADS):
+        dir_name = get_file_cat(file)
+        
+        if dir_name:
+            dir_filePath = os.path.join(PATH_DOWNLOADS, dir_name)
+            if not os.path.exists(dir_filePath):
+                os.makedirs(dir_filePath)
+            old_path = PATH_DOWNLOADS / file
+            new_path = os.path.join(PATH_DOWNLOADS, dir_name, file)
+            try:
+                shutil.move(str(old_path), new_path)  # Fixed: convert Path to string
+                print(f'Moved: {file} -> {dir_name}/')
+            except Exception as e:
+                print(f'{dir_name}/{file} - {e}')
+if __name__ == "__main__":
+    sort_downloads()
